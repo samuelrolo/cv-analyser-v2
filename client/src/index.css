@@ -175,3 +175,15 @@
     }
   }
 }
+/* CV Analyser Custom Styles */
+.gold-bar {
+  background: linear-gradient(90deg, #C9A961 0%, #A88B4E 100%);
+}
+
+.result-card {
+  @apply rounded-lg border border-border bg-card;
+}
+
+.section-label {
+  @apply text-xs font-semibold tracking-wider uppercase;
+}
