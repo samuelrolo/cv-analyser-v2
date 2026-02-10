@@ -8,6 +8,7 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -92,11 +93,13 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-foreground/10 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C9A961] to-[#A88B4E] flex items-center justify-center">
-              <span className="text-xs font-bold text-white">S2</span>
-            </div>
-            <span className="font-semibold text-foreground">Share2Inspire</span>
+          <div className="flex items-center gap-3">
+            <img 
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/105354394/nPCrQxnqRnkcyVVr.png" 
+              alt="Share2Inspire" 
+              className="h-10 w-auto"
+            />
+            <span className="text-sm font-medium text-foreground">S2I</span>
           </div>
         </div>
       </header>
@@ -167,11 +170,34 @@ export default function Home() {
             )}
           </div>
 
+          {/* Privacy Terms Checkbox */}
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-border text-[#C9A961] focus:ring-[#C9A961] cursor-pointer"
+            />
+            <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
+              Concordo com a{' '}
+              <a 
+                href="https://www.share2inspire.pt/pages/politica-privacidade" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[#C9A961] hover:underline"
+              >
+                Política de Privacidade
+              </a>
+              {' '}e autorizo o processamento dos meus dados para análise do CV.
+            </label>
+          </div>
+
           {/* Analyze Button */}
           <Button
             onClick={handleAnalyze}
-            disabled={!file || loading}
-            className="w-full h-12 text-base font-semibold bg-[#C9A961] hover:bg-[#A88B4E] text-white"
+            disabled={!file || loading || !acceptedTerms}
+            className="w-full h-12 text-base font-semibold bg-[#C9A961] hover:bg-[#A88B4E] text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

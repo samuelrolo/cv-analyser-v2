@@ -174,11 +174,13 @@ export default function Results() {
               <ArrowLeft className="w-4 h-4" />
               Voltar
             </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C9A961] to-[#A88B4E] flex items-center justify-center">
-                <span className="text-xs font-bold text-white">S2</span>
-              </div>
-              <span className="font-semibold text-foreground">Share2Inspire</span>
+            <div className="flex items-center gap-3">
+              <img 
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/105354394/nPCrQxnqRnkcyVVr.png" 
+                alt="Share2Inspire" 
+                className="h-8 w-auto"
+              />
+              <span className="text-sm font-medium text-foreground">S2I</span>
             </div>
           </div>
           <Button
