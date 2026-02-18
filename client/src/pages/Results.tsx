@@ -14,7 +14,7 @@ import RecruiterPerception from "@/components/RecruiterPerception";
 import LockedSection from "@/components/LockedSection";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, ArrowLeft, Home as HomeIcon, FileCheck, Lock, TrendingUp, Euro, Info, BarChart3, Grid2x2, Eye, AlertTriangle, Bot, CreditCard, CheckCircle2, Mail, Ticket, Unlock } from "lucide-react";
+import { Loader2, ArrowLeft, Home as HomeIcon, FileCheck, Lock, TrendingUp, Euro, Info, BarChart3, Grid2x2, Eye, AlertTriangle, Bot, CreditCard, CheckCircle2, Mail, Ticket, Unlock, Target, Sparkles, Calendar } from "lucide-react";
 import type { AnalysisData } from "@/types/analysis";
 
 const SUPABASE_URL = 'https://cvlumvgrbuolrnwrtrgz.supabase.co';
@@ -106,9 +106,10 @@ function NormalCurveChart({ percentile }: { percentile: number }) {
 }
 
 /* ─── Salary Block ─── */
-function SalaryBlock({ blurred }: { blurred: boolean }) {
+function SalaryBlock({ blurred, salaryDetailed, perceivedSeniority }: { blurred: boolean; salaryDetailed?: any; perceivedSeniority?: string }) {
+  const sd = salaryDetailed || { percentile25: 1400, median: 1800, percentile75: 2400, topMax: 3200, benefits: [], benefitsNote: '', source: '' };
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+    <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
       <div className="flex items-center gap-3">
         <GoldIcon>
           <Euro className="w-5 h-5 text-[#C9A961]" />
@@ -118,10 +119,10 @@ function SalaryBlock({ blurred }: { blurred: boolean }) {
             <p className="text-xs font-semibold tracking-wider text-muted-foreground">ESTIMATIVA SALARIAL</p>
             <Tooltip
               label="Como é calculada a estimativa?"
-              text="Estimativa baseada no perfil profissional detectado, nível de senioridade, competências identificadas e dados salariais do mercado português. Os valores são indicativos e podem variar conforme a região, setor e dimensão da empresa."
+              text="Estimativa baseada no perfil profissional detectado, nível de senioridade, competências identificadas e dados salariais do mercado português (Hays, Michael Page, Mercer). Os valores são indicativos e podem variar conforme a região, setor e dimensão da empresa."
             />
           </div>
-          <p className="text-xs text-muted-foreground">Com base no perfil e mercado português</p>
+          <p className="text-xs text-muted-foreground">Com base no perfil ({perceivedSeniority || 'N/D'}) e mercado português</p>
         </div>
       </div>
 
@@ -134,26 +135,55 @@ function SalaryBlock({ blurred }: { blurred: boolean }) {
           </div>
         )}
         <div className={blurred ? 'select-none' : ''}>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Mínimo</p>
-              <p className="text-2xl font-bold text-foreground">€1.200</p>
-              <p className="text-xs text-muted-foreground">/mês</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="text-center p-3 bg-muted/30 rounded-lg">
+              <p className="text-[10px] text-muted-foreground mb-1">Percentil 25</p>
+              <p className="text-xl font-bold text-foreground">€{sd.percentile25.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground">/mês (bruto)</p>
             </div>
-            <div className="text-center p-4 bg-[#C9A961]/10 rounded-lg border border-[#C9A961]/20">
-              <p className="text-xs text-muted-foreground mb-1">Estimativa</p>
-              <p className="text-2xl font-bold text-[#C9A961]">€1.650</p>
-              <p className="text-xs text-muted-foreground">/mês</p>
+            <div className="text-center p-3 bg-[#C9A961]/10 rounded-lg border border-[#C9A961]/20">
+              <p className="text-[10px] text-muted-foreground mb-1">Mediana</p>
+              <p className="text-xl font-bold text-[#C9A961]">€{sd.median.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground">/mês (bruto)</p>
             </div>
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Máximo</p>
-              <p className="text-2xl font-bold text-foreground">€2.100</p>
-              <p className="text-xs text-muted-foreground">/mês</p>
+            <div className="text-center p-3 bg-muted/30 rounded-lg">
+              <p className="text-[10px] text-muted-foreground mb-1">Percentil 75</p>
+              <p className="text-xl font-bold text-foreground">€{sd.percentile75.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground">/mês (bruto)</p>
+            </div>
+            <div className="text-center p-3 bg-green-500/5 rounded-lg border border-green-500/20">
+              <p className="text-[10px] text-muted-foreground mb-1">Top (Perfis de Topo)</p>
+              <p className="text-xl font-bold text-green-600">€{sd.topMax.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground">/mês (bruto)</p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-3 text-center">
-            Valores estimados com base em dados do mercado português para o teu perfil
-          </p>
+
+          {/* Benefits section - only when paid */}
+          {!blurred && sd.benefits && sd.benefits.length > 0 && (
+            <div className="mt-5 pt-4 border-t border-border">
+              <p className="text-xs font-semibold text-foreground mb-3">Benefícios típicos para {perceivedSeniority || 'este nível'} na indústria:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {sd.benefits.map((b: string, i: number) => (
+                  <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <span className="text-[#C9A961] mt-0.5 shrink-0">✓</span>
+                    <span>{b}</span>
+                  </div>
+                ))}
+              </div>
+              {sd.benefitsNote && (
+                <p className="text-xs text-muted-foreground mt-3 italic">{sd.benefitsNote}</p>
+              )}
+              {sd.source && (
+                <p className="text-[10px] text-muted-foreground/60 mt-2">Fonte: {sd.source}</p>
+              )}
+            </div>
+          )}
+
+          {blurred && (
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              Valores estimados com base em dados do mercado português para o teu perfil
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -161,22 +191,25 @@ function SalaryBlock({ blurred }: { blurred: boolean }) {
 }
 
 /* ─── Automation Risk ─── */
-function AutomationRiskBlock({ blurred }: { blurred: boolean }) {
+function AutomationRiskBlock({ blurred, automationRisk }: { blurred: boolean; automationRisk?: any }) {
+  const ar = automationRisk || { percentage: 35, level: 'Médio', description: 'Análise detalhada do risco de automação para o teu perfil', recommendations: [] };
+  const barColor = ar.percentage <= 25 ? 'from-green-400 to-green-500' : ar.percentage <= 50 ? 'from-yellow-400 to-orange-400' : 'from-orange-400 to-red-500';
+  const levelColor = ar.percentage <= 25 ? 'text-green-600 bg-green-500/10' : ar.percentage <= 50 ? 'text-yellow-600 bg-yellow-500/10' : 'text-red-600 bg-red-500/10';
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+    <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
       <div className="flex items-center gap-3">
         <GoldIcon>
           <Bot className="w-5 h-5 text-[#C9A961]" />
         </GoldIcon>
         <div>
           <div className="flex items-center gap-2">
-            <p className="text-xs font-semibold tracking-wider text-muted-foreground">POTENCIAL DE AUTOMAÇÃO</p>
+            <p className="text-xs font-semibold tracking-wider text-muted-foreground">POTENCIAL DE SUBSTITUIÇÃO POR IA</p>
             <Tooltip
               label="O que é o Potencial de Automação?"
-              text="Estimativa da probabilidade de as tarefas associadas ao teu perfil profissional serem automatizadas por IA ou robótica nos próximos 5-10 anos. Quanto MAIOR o valor, MAIOR o risco de automação."
+              text="Estimativa da probabilidade de as tarefas associadas ao teu perfil profissional serem automatizadas por IA ou robótica nos próximos 5-10 anos. Quanto MAIOR o valor, MAIOR o risco."
             />
           </div>
-          <p className="text-xs text-muted-foreground">Risco de automação da tua função — quanto maior, pior</p>
+          <p className="text-xs text-muted-foreground">Risco de automação da tua função nos próximos 5-10 anos</p>
         </div>
       </div>
 
@@ -192,12 +225,30 @@ function AutomationRiskBlock({ blurred }: { blurred: boolean }) {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Baixo risco</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded ${levelColor}`}>{ar.level} — {ar.percentage}%</span>
+              </div>
               <span className="text-xs text-muted-foreground">Alto risco</span>
             </div>
             <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-gradient-to-r from-green-400 to-yellow-400 w-1/2" />
+              <div className={`h-full rounded-full bg-gradient-to-r ${barColor} transition-all duration-500`} style={{ width: `${ar.percentage}%` }} />
             </div>
-            <p className="text-sm text-muted-foreground">→ Análise detalhada do risco de automação para o teu perfil</p>
+            {!blurred && (
+              <>
+                <p className="text-sm text-muted-foreground">{ar.description}</p>
+                {ar.recommendations && ar.recommendations.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-xs font-semibold text-foreground mb-2">Recomendações para mitigar o risco:</p>
+                    {ar.recommendations.map((r: string, i: number) => (
+                      <p key={i} className="text-sm text-muted-foreground flex items-start gap-2 mb-1">
+                        <span className="text-[#C9A961] shrink-0">→</span> {r}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+            {blurred && <p className="text-sm text-muted-foreground">→ Análise detalhada do risco de automação para o teu perfil</p>}
           </div>
         </div>
       </div>
@@ -701,50 +752,55 @@ export default function Results() {
 
   const avgScore = analysisData.quadrants.reduce((sum, q) => sum + q.score, 0) / analysisData.quadrants.length;
   const percentile = Math.round(Math.min(95, Math.max(5, avgScore * 0.95)));
+  const dimensions = analysisData.quadrants.map(q => ({ label: q.title, score: q.score, benchmark: q.benchmark }));
   const storedVoucherCode = sessionStorage.getItem('voucherCode');
   const storedVoucherRemaining = sessionStorage.getItem('voucherRemaining');
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-foreground/10 px-6 py-4 sticky top-0 bg-background/90 backdrop-blur-lg z-50">
+      {/* Header - responsivo */}
+      <header className="border-b border-foreground/10 px-3 sm:px-6 py-3 sm:py-4 sticky top-0 bg-background/90 backdrop-blur-lg z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => setLocation('/')}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Voltar
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Voltar</span>
             </button>
-            <div className="flex items-center gap-2">
-              <GoldIcon size="w-7 h-7">
-                <FileCheck className="w-3.5 h-3.5 text-[#C9A961]" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <GoldIcon size="w-6 h-6 sm:w-7 sm:h-7">
+                <FileCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#C9A961]" />
               </GoldIcon>
-              <span className="text-base font-semibold text-foreground">CV Analyser</span>
+              <span className="text-sm sm:text-base font-semibold text-foreground">CV Analyser</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isPaid ? (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-semibold text-green-600">Relatório Completo</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
+                <span className="text-xs sm:text-sm font-semibold text-green-600">Relatório Completo</span>
               </div>
             ) : (
               <>
                 <Button
                   onClick={() => setShowVoucherModal(true)}
                   variant="outline"
-                  className="text-sm font-medium border-[#C9A961]/30 text-[#C9A961] hover:bg-[#C9A961]/5"
+                  size="sm"
+                  className="text-xs sm:text-sm font-medium border-[#C9A961]/30 text-[#C9A961] hover:bg-[#C9A961]/5"
                 >
-                  <Ticket className="w-4 h-4 mr-1.5" />
-                  Tenho código
+                  <Ticket className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
+                  <span className="hidden sm:inline">Tenho código</span>
+                  <span className="sm:hidden">Código</span>
                 </Button>
                 <Button
                   onClick={() => openPaymentModal()}
-                  className="bg-[#C9A961] hover:bg-[#A88B4E] text-white text-sm font-semibold px-5 py-2"
+                  size="sm"
+                  className="bg-[#C9A961] hover:bg-[#A88B4E] text-white text-xs sm:text-sm font-semibold px-3 sm:px-5 py-1.5 sm:py-2"
                 >
-                  Desbloquear Análise Completa
+                  <span className="hidden sm:inline">Desbloquear Análise Completa</span>
+                  <span className="sm:hidden">Desbloquear</span>
                 </Button>
               </>
             )}
@@ -758,7 +814,7 @@ export default function Results() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-10 space-y-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
         {/* Report Label */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {isPaid ? (
@@ -792,7 +848,7 @@ export default function Results() {
         )}
 
         {/* ═══ ATS Rejection ═══ */}
-        <ATSRejectionBlock rejectionRate={analysisData.atsRejectionRate} topFactor={analysisData.atsTopFactor} />
+        <ATSRejectionBlock rejectionRate={analysisData.atsRejectionRate} topFactor={analysisData.atsTopFactor} isPaid={isPaid} detailedFactors={analysisData.detailedAtsAnalysis?.factors} atsSystems={analysisData.detailedAtsAnalysis?.atsSystems} quickFixes={analysisData.detailedAtsAnalysis?.quickFixes} />
 
         {/* ═══ 4 Quadrantes ═══ */}
         <div>
@@ -918,11 +974,11 @@ export default function Results() {
               />
             </div>
           </div>
-          <RecruiterPerception roles={analysisData.keywords} perceivedRole={analysisData.perceivedRole} perceivedSeniority={analysisData.perceivedSeniority} />
+          <RecruiterPerception isPaid={isPaid} roles={analysisData.keywords} perceivedRole={analysisData.perceivedRole} perceivedSeniority={analysisData.perceivedSeniority} deepAnalysis={analysisData.recruiterDeepAnalysis} />
         </div>
 
         {/* ═══ Salary ═══ */}
-        <SalaryBlock blurred={!isPaid} />
+        <SalaryBlock blurred={!isPaid} salaryDetailed={analysisData.salaryDetailed} perceivedSeniority={analysisData.perceivedSeniority} />
 
         {/* ═══ Normal Curve ═══ */}
         <div className="bg-card border border-border rounded-lg p-6 space-y-4">
@@ -962,6 +1018,27 @@ export default function Results() {
             → Estás no <span className="font-semibold text-foreground">percentil {percentile}</span>, o que significa que o teu CV é melhor que {percentile}% dos CVs analisados no mercado.
           </p>
 
+          {/* Interpretação detalhada quando pago */}
+          {isPaid && (
+            <div className="bg-muted/30 rounded-lg p-4 space-y-2">
+              <p className="text-xs font-semibold text-foreground">Interpretação do teu posicionamento:</p>
+              <p className="text-sm text-muted-foreground">
+                {percentile >= 90 ? (
+                  <>O teu CV está no <strong className="text-foreground">top {100 - percentile}%</strong> dos candidatos analisados. Isto coloca-te numa posição de excelência — num processo com 100 candidatos, o teu CV seria melhor que {percentile} deles. O teu perfil destaca-se pela qualidade da estrutura, conteúdo e apresentação. Mantém este nível e foca-te em personalizar o CV para cada candidatura específica.</>
+                ) : percentile >= 75 ? (
+                  <>Com um score no <strong className="text-foreground">percentil {percentile}</strong>, o teu CV posiciona-se acima da grande maioria dos candidatos. Num processo com 100 candidatos, superarias {percentile} deles. Estás a {90 - percentile} pontos percentuais do top 10% — pequenos ajustes nas áreas identificadas podem fazer a diferença para atingir a excelência.</>
+                ) : percentile >= 50 ? (
+                  <>O teu CV está no <strong className="text-foreground">percentil {percentile}</strong>, acima da média mas com margem significativa de melhoria. Num processo competitivo, poderias perder para candidatos com CVs mais optimizados. Foca-te nas dimensões com score mais baixo para subir rapidamente de posição.</>
+                ) : (
+                  <>O teu CV está no <strong className="text-foreground">percentil {percentile}</strong>, abaixo da média do mercado. Isto significa que {100 - percentile}% dos CVs analisados são mais competitivos. A boa notícia é que há muito espaço para melhoria — segue as recomendações abaixo para subir significativamente o teu posicionamento.</>
+                )}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                → Para subir para o próximo nível, precisas de aumentar o score global em aproximadamente <strong className="text-foreground">{percentile >= 90 ? '2-3' : percentile >= 75 ? '5-8' : '10-15'} pontos</strong>.
+              </p>
+            </div>
+          )}
+
           {/* Chart - blurred if not paid */}
           <div className="relative">
             {!isPaid && (
@@ -985,10 +1062,10 @@ export default function Results() {
         </div>
 
         {/* ═══ Potencial de Automação ═══ */}
-        <AutomationRiskBlock blurred={!isPaid} />
+        <AutomationRiskBlock blurred={!isPaid} automationRisk={analysisData.automationRisk} />
 
         {/* ═══ Matriz de Oportunidades ═══ */}
-        {!isPaid && (
+        {!isPaid ? (
           <div className="space-y-4">
             <div>
               <p className="text-xs font-semibold tracking-wider text-muted-foreground">MATRIZ DE OPORTUNIDADES — RELATÓRIO COMPLETO</p>
@@ -998,43 +1075,164 @@ export default function Results() {
               <LockedSection
                 title="Análise detalhada por quadrante"
                 visibleHint="Breakdown completo de cada dimensão com pontos fortes e fracos identificados."
-                previewItems={[
-                  "Estrutura visual e hierarquia de informação",
-                  "Alinhamento entre competências e função-alvo",
-                  "Keywords e compatibilidade com filtros ATS",
-                  "Posicionamento face ao mercado",
-                ]}
+                previewItems={["Estrutura visual e hierarquia de informação", "Alinhamento entre competências e função-alvo", "Keywords e compatibilidade com filtros ATS", "Posicionamento face ao mercado"]}
               />
               <LockedSection
                 title="Comparação com perfis top 25%"
                 visibleHint="Vê como o teu CV se compara com os melhores do teu setor."
-                previewItems={[
-                  "Benchmark contra os melhores CVs do setor",
-                  "Competências diferenciadoras em falta",
-                  "Posicionamento face a concorrentes",
-                  "Gap analysis com recomendações",
-                ]}
+                previewItems={["Benchmark contra os melhores CVs do setor", "Competências diferenciadoras em falta", "Posicionamento face a concorrentes", "Gap analysis com recomendações"]}
               />
               <LockedSection
                 title="Recomendações específicas (15+)"
                 visibleHint="Mais de 15 micro-insights com acções concretas para melhorar o teu CV."
-                previewItems={[
-                  "Reescrita otimizada do resumo profissional",
-                  "Reformulação com métricas de impacto",
-                  "Otimização de keywords para ATS",
-                  "Sugestões de formatação visual",
-                ]}
+                previewItems={["Reescrita otimizada do resumo profissional", "Reformulação com métricas de impacto", "Otimização de keywords para ATS", "Sugestões de formatação visual"]}
               />
               <LockedSection
                 title="Plano de acção (30 dias)"
                 visibleHint="Plano estruturado com 3-5 acções prioritárias e timeline de implementação."
-                previewItems={[
-                  "3-5 acções prioritárias ordenadas",
-                  "Timeline de implementação",
-                  "Checklist de melhorias rápidas",
-                  "Estratégia de candidatura",
-                ]}
+                previewItems={["3-5 acções prioritárias ordenadas", "Timeline de implementação", "Checklist de melhorias rápidas", "Estratégia de candidatura"]}
               />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* ═══ Análise Detalhada por Dimensão ═══ */}
+            <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <GoldIcon size="w-8 h-8">
+                  <BarChart3 className="w-4 h-4 text-[#C9A961]" />
+                </GoldIcon>
+                <p className="text-xs font-semibold tracking-wider text-muted-foreground">ANÁLISE DETALHADA POR DIMENSÃO</p>
+              </div>
+              <div className="space-y-4">
+                {dimensions.map((dim: any) => {
+                  const gap = dim.score - dim.benchmark;
+                  const isStrong = gap >= 10;
+                  const isWeak = gap <= 0;
+                  return (
+                    <div key={dim.label} className="p-3 bg-muted/20 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-foreground">{dim.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-foreground">{dim.score}/100</span>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${isStrong ? 'text-green-600 bg-green-500/10' : isWeak ? 'text-red-600 bg-red-500/10' : 'text-yellow-600 bg-yellow-500/10'}`}>
+                            {gap >= 0 ? '+' : ''}{gap} vs benchmark
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {isStrong ? (
+                          <>✅ <strong>Ponto forte.</strong> Estás {gap} pontos acima do benchmark ({dim.benchmark}). Esta dimensão contribui positivamente para o teu posicionamento global.</>
+                        ) : isWeak ? (
+                          <>⚠️ <strong>Área de melhoria.</strong> Estás {Math.abs(gap)} pontos abaixo do benchmark ({dim.benchmark}). Melhorar esta dimensão terá impacto directo no teu score global.</>
+                        ) : (
+                          <>→ <strong>Acima da média.</strong> Estás {gap} pontos acima do benchmark ({dim.benchmark}). Mantém e procura optimizar para chegar ao top.</>
+                        )}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ═══ Matriz de Prioridades ═══ */}
+            <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <GoldIcon size="w-8 h-8">
+                  <Target className="w-4 h-4 text-[#C9A961]" />
+                </GoldIcon>
+                <p className="text-xs font-semibold tracking-wider text-muted-foreground">MATRIZ DE PRIORIDADES</p>
+              </div>
+              <p className="text-sm text-muted-foreground">Dimensões ordenadas por urgência de melhoria (maior gap = maior prioridade):</p>
+              <div className="space-y-2">
+                {[...dimensions].sort((a: any, b: any) => (a.score - a.benchmark) - (b.score - b.benchmark)).map((dim: any, i: number) => {
+                  const gap = dim.score - dim.benchmark;
+                  const priority = gap <= 0 ? 'Alta' : gap <= 10 ? 'Média' : 'Baixa';
+                  const prColor = priority === 'Alta' ? 'bg-red-500/10 text-red-600 border-red-500/20' : priority === 'Média' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' : 'bg-green-500/10 text-green-600 border-green-500/20';
+                  return (
+                    <div key={dim.label} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-muted-foreground w-6">#{i + 1}</span>
+                        <span className="text-sm font-medium text-foreground">{dim.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{dim.score}/{dim.benchmark}</span>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${prColor}`}>{priority}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ═══ Acções de Melhoria com Antes/Depois ═══ */}
+            {analysisData.improvementActions && analysisData.improvementActions.length > 0 && (
+              <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <GoldIcon size="w-8 h-8">
+                    <Sparkles className="w-4 h-4 text-[#C9A961]" />
+                  </GoldIcon>
+                  <p className="text-xs font-semibold tracking-wider text-muted-foreground">ACÇÕES DE MELHORIA — ANTES vs DEPOIS</p>
+                </div>
+                <p className="text-sm text-muted-foreground">Acções concretas para melhorar o teu CV, com o impacto estimado de cada uma:</p>
+                <div className="space-y-4">
+                  {analysisData.improvementActions.map((action: any, i: number) => (
+                    <div key={i} className="border border-border rounded-lg overflow-hidden">
+                      <div className="p-3 bg-muted/30 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-[#C9A961] bg-[#C9A961]/10 px-2 py-0.5 rounded">#{i + 1}</span>
+                          <span className="text-sm font-semibold text-foreground">{action.action}</span>
+                        </div>
+                        <span className="text-xs font-medium text-green-600 bg-green-500/10 px-2 py-0.5 rounded">+{action.impact} pontos</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+                        <div className="p-3">
+                          <p className="text-[10px] font-semibold text-red-500 mb-1">❌ ANTES</p>
+                          <p className="text-sm text-muted-foreground">{action.before}</p>
+                        </div>
+                        <div className="p-3">
+                          <p className="text-[10px] font-semibold text-green-600 mb-1">✅ DEPOIS</p>
+                          <p className="text-sm text-muted-foreground">{action.after}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-3 bg-[#C9A961]/5 rounded-lg border border-[#C9A961]/20">
+                  <p className="text-sm text-foreground font-medium">
+                    🎯 Score estimado após melhorias: <strong className="text-[#C9A961]">{Math.min(100, Math.round(avgScore) + (analysisData.improvementActions?.reduce((sum: number, a: any) => sum + (a.impact || 0), 0) || 0))}/100</strong>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ═══ Plano de Acção 30 Dias ═══ */}
+            <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <GoldIcon size="w-8 h-8">
+                  <Calendar className="w-4 h-4 text-[#C9A961]" />
+                </GoldIcon>
+                <p className="text-xs font-semibold tracking-wider text-muted-foreground">PLANO DE ACÇÃO — 30 DIAS</p>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { week: 'Semana 1-2', title: 'Optimização de Conteúdo', tasks: ['Reescrever resumo profissional com métricas de impacto', 'Adicionar resultados quantificáveis a cada experiência', 'Alinhar keywords com as funções-alvo'] },
+                  { week: 'Semana 3', title: 'Estrutura e Formatação', tasks: ['Optimizar hierarquia visual e espaçamento', 'Garantir compatibilidade ATS (formato, fontes, secções)', 'Adicionar secções em falta (certificações, idiomas, etc.)'] },
+                  { week: 'Semana 4', title: 'Validação e Ajustes', tasks: ['Pedir feedback a 2-3 profissionais da área', 'Testar em diferentes sistemas ATS', 'Personalizar versões para candidaturas específicas'] },
+                ].map((phase, i) => (
+                  <div key={i} className="p-3 bg-muted/20 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold text-[#C9A961] bg-[#C9A961]/10 px-2 py-0.5 rounded">{phase.week}</span>
+                      <span className="text-sm font-semibold text-foreground">{phase.title}</span>
+                    </div>
+                    {phase.tasks.map((task, j) => (
+                      <p key={j} className="text-sm text-muted-foreground ml-4 flex items-start gap-2 mb-1">
+                        <span className="text-muted-foreground/50 shrink-0">○</span> {task}
+                      </p>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

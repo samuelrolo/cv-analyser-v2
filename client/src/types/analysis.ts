@@ -1,21 +1,69 @@
 export interface AnalysisData {
   atsRejectionRate: number;
-  atsTopFactor?: string; // 1 bullet visível do ATS
+  atsTopFactor?: string;
   quadrants: {
     title: string;
     score: number;
     benchmark: number;
     impactPhrase: string;
-    strengths?: string[]; // pontos fortes visíveis
-    weaknesses?: string[]; // pontos a melhorar (1 visível, resto blur)
+    strengths?: string[];
+    weaknesses?: string[];
   }[];
   keywords: string[];
-  perceivedRole?: string; // "Gestor de Projetos mid-level"
-  perceivedSeniority?: string; // "Mid-level" / "Senior" / "Junior"
+  perceivedRole?: string;
+  perceivedSeniority?: string;
   salaryRange?: {
     min: number;
     mid: number;
     max: number;
   };
-  overallScore?: number; // score global 0-100
+  overallScore?: number;
+  // Extended fields for paid report
+  salaryDetailed?: {
+    percentile25: number;
+    median: number;
+    percentile75: number;
+    topMax: number;
+    currency: string;
+    period: string; // "mensal" | "anual"
+    benefits?: string[];
+    benefitsNote?: string;
+    source?: string;
+  };
+  automationRisk?: {
+    percentage: number;
+    level: string; // "Baixo" | "Médio" | "Alto"
+    description: string;
+    recommendations?: string[];
+  };
+  improvementActions?: {
+    action: string;
+    before: string;
+    after: string;
+    impact: string; // "Alto" | "Médio" | "Baixo"
+    dimension: string;
+  }[];
+  priorityMatrix?: {
+    dimension: string;
+    urgency: string; // "Alta" | "Média" | "Baixa"
+    currentScore: number;
+    potentialScore: number;
+    actions: string[];
+  }[];
+  detailedAtsAnalysis?: {
+    factors: string[];
+    atsSystems?: string[];
+    quickFixes?: string[];
+  };
+  recruiterDeepAnalysis?: {
+    attentionMap?: string[];
+    frictionPoints?: string[];
+    positiveSignals?: string[];
+    readingFlow?: string;
+  };
+  actionPlan30Days?: {
+    week: string;
+    title: string;
+    actions: string[];
+  }[];
 }

@@ -1,18 +1,47 @@
-// RecruiterPerception.tsx - Estilo Share2Inspire: ícones outline dourado
-import { Lock, Eye } from "lucide-react";
+// RecruiterPerception.tsx - Estilo Share2Inspire
+import { Lock, Eye, Clock, AlertCircle, MessageSquare } from "lucide-react";
 
 interface RecruiterPerceptionProps {
   roles: string[];
   perceivedRole?: string;
   perceivedSeniority?: string;
+  isPaid?: boolean;
+  deepAnalysis?: {
+    attentionMap?: string[];
+    frictionPoints?: string[];
+    involuntaryMessages?: string[];
+  };
 }
 
-const RecruiterPerception = ({ roles, perceivedRole, perceivedSeniority }: RecruiterPerceptionProps) => {
+const RecruiterPerception = ({ roles, perceivedRole, perceivedSeniority, isPaid = false, deepAnalysis }: RecruiterPerceptionProps) => {
   const displayRole = perceivedRole || (roles.length > 0 ? roles[0] : 'Profissional');
   const displaySeniority = perceivedSeniority || 'Mid-level';
 
+  const defaultAttentionMap = [
+    "Nome e título profissional — primeira impressão em 2 segundos",
+    "Última experiência profissional — cargo e empresa",
+    "Competências-chave listadas — matching rápido com a vaga",
+    "Formação académica — validação de qualificações base",
+  ];
+
+  const defaultFrictionPoints = [
+    "Densidade de texto elevada pode dificultar a leitura rápida",
+    "Secções longas sem bullets ou destaques visuais",
+    "Informação de contacto pode não estar suficientemente visível",
+  ];
+
+  const defaultInvoluntaryMessages = [
+    "Profissional com trajectória consistente e progressão de carreira",
+    "Perfil orientado para resultados com experiência diversificada",
+    "Candidato com potencial de liderança e visão estratégica",
+  ];
+
+  const attentionMap = deepAnalysis?.attentionMap?.length ? deepAnalysis.attentionMap : defaultAttentionMap;
+  const frictionPoints = deepAnalysis?.frictionPoints?.length ? deepAnalysis.frictionPoints : defaultFrictionPoints;
+  const involuntaryMessages = deepAnalysis?.involuntaryMessages?.length ? deepAnalysis.involuntaryMessages : defaultInvoluntaryMessages;
+
   return (
-    <div className="rounded-lg border border-border bg-card p-6 space-y-4">
+    <div className="rounded-lg border border-border bg-card p-4 sm:p-6 space-y-4">
       <div className="flex items-center gap-3 mb-2">
         <div className="w-10 h-10 rounded-full border border-[#C9A961]/30 bg-[#C9A961]/5 flex items-center justify-center shrink-0">
           <Eye className="w-5 h-5 text-[#C9A961]" />
@@ -26,16 +55,13 @@ const RecruiterPerception = ({ roles, perceivedRole, perceivedSeniority }: Recru
       {/* Keywords/tags - always visible */}
       <div className="flex flex-wrap gap-2">
         {roles.map((role, i) => (
-          <span
-            key={i}
-            className="px-3 py-1 rounded-full text-xs font-medium bg-[#C9A961]/10 text-[#C9A961] border border-[#C9A961]/20"
-          >
+          <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-[#C9A961]/10 text-[#C9A961] border border-[#C9A961]/20">
             {role}
           </span>
         ))}
       </div>
 
-      {/* 1-2 visible insights */}
+      {/* Visible insights */}
       <div className="space-y-2 pt-2 border-t border-border">
         <p className="text-sm text-muted-foreground">
           → Perfil percebido como: <span className="font-semibold text-foreground">{displayRole}</span> ({displaySeniority})
@@ -45,18 +71,66 @@ const RecruiterPerception = ({ roles, perceivedRole, perceivedSeniority }: Recru
         </p>
       </div>
 
-      {/* Blurred deeper analysis */}
-      <div className="relative">
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg">
-          <Lock className="w-5 h-5 text-[#C9A961] mb-1" />
-          <p className="text-xs font-medium text-muted-foreground">Análise completa da percepção no relatório pago</p>
+      {/* Conteúdo desbloqueado ou bloqueado */}
+      {isPaid ? (
+        <div className="space-y-4 pt-2 border-t border-border">
+          {/* Mapa de atenção */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#C9A961]" />
+              <p className="text-xs font-semibold text-foreground">Mapa de atenção dos primeiros 30 segundos:</p>
+            </div>
+            {attentionMap.map((item, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground pl-1">
+                <span className="text-[#C9A961] font-bold mt-0.5">{i + 1}.</span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Pontos de fricção */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-yellow-500" />
+              <p className="text-xs font-semibold text-foreground">Pontos de fricção na leitura:</p>
+            </div>
+            {frictionPoints.map((item, i) => (
+              <div key={i} className="p-2.5 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
+                <p className="text-xs text-foreground flex items-start gap-2">
+                  <span className="text-yellow-500">⚠</span>
+                  <span>{item}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mensagens involuntárias */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-[#C9A961]" />
+              <p className="text-xs font-semibold text-foreground">Mensagens que o teu CV transmite:</p>
+            </div>
+            {involuntaryMessages.map((item, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground pl-1">
+                <span className="text-[#C9A961]">→</span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="select-none space-y-1.5 text-sm text-muted-foreground p-3">
-          <p>→ Mapa de atenção dos primeiros 30 segundos</p>
-          <p>→ Pontos de fricção na leitura do recrutador</p>
-          <p>→ Mensagens involuntárias que o teu CV transmite</p>
+      ) : (
+        <div className="relative">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg">
+            <Lock className="w-5 h-5 text-[#C9A961] mb-1" />
+            <p className="text-xs font-medium text-muted-foreground">Análise completa da percepção no relatório pago</p>
+          </div>
+          <div className="select-none space-y-1.5 text-sm text-muted-foreground p-3">
+            <p>→ Mapa de atenção dos primeiros 30 segundos</p>
+            <p>→ Pontos de fricção na leitura do recrutador</p>
+            <p>→ Mensagens involuntárias que o teu CV transmite</p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
